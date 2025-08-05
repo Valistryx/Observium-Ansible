@@ -1,0 +1,8 @@
+name: Lint and test PHP and Ansible
+on: pull_request
+jobs:
+  lint:
+    runs-on: debian-latest
+    steps:
+        - uses: actions/checkout@v1
+        - uses: michaelw90/PHP-Lint@master
