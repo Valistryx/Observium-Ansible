@@ -1,0 +1,153 @@
+---
+observium_uid: 8042
+observium_group_gid: 8042
+observium_user_comment: "Observium Service Account"
+
+observium_svn_user: ""
+observium_svn_pass: ""
+observium_install_dir: "/opt/observium"
+observium_config_dir: "{{ observium_install_dir }}/conf/"
+
+apache_site_avail: "/etc/apache2/sites-available/"
+apache_site_en: "/etc/apache2/sites-enabled/"
+apache_ssl_dir: "/etc/apache2/ssl/"
+
+syslog_dir: "/opt/syslog"
+
+local_poller_files: "/etc/ansible/roles/observium/files/poller"
+
+debian_shared_required_packages:
+  - php8.2-cli
+  - php8.2-mysql
+  - php8.2-gd
+  - php8.2-bcmath
+  - php8.2-mbstring
+  - php8.2-opcache
+  - php8.2-apcu
+  - php8.2-curl
+  - php-json
+  - php-pear
+  - snmp
+  - fping
+  - mariadb-client
+  - python3-mysqldb
+  - python-is-python3
+  - python3-pymysql
+  - rrdtool
+  - subversion
+  - whois
+  - mtr-tiny
+  - ipmitool
+  - cron
+  - curl
+
+debian_web_required_packages:
+  - libapache2-mod-php8.2
+  - php-ldap
+  - graphviz
+  - imagemagick
+  - apache2
+  - monitoring-plugins-basic
+  - monitoring-plugins-common
+  - monitoring-plugins-standard
+  - libwww-perl
+  - bc
+  - file
+  - nmap
+  - openssl
+
+debian_poller_required_packages:
+  - libvirt-clients
+  - monitoring-plugins-basic
+  - monitoring-plugins-common
+  - monitoring-plugins-standard
+  - bc
+  - file
+  - nmap
+  - openssl
+
+debian_syslog_required_packages:
+  - rsyslog
+
+debian_core_required_packages:
+  - rrdcached
+  - ldap-utils
+
+poller_cron_jobs:
+  - name: "Run a complete discovery of all devices once every 6 hours"
+    minute: 33
+    hour: "*/6"
+    user: "observium"
+    job: "/opt/observium/discovery.php -h all >> /dev/null 2>&1"
+
+  - name: "Run automated discovery of newly added devices every 5 minutes"
+    minute: "*/5"
+    hour: "*"
+    user: "observium"
+    job: "/opt/observium/discovery.php -h new >> /dev/null 2>&1"
+
+  - name: "Run multithreaded poller wrapper every 5 minutes"
+    minute: "*/5"
+    hour: "*"
+    user: "observium"
+    job: "/opt/observium/poller-wrapper.py poller >> /dev/null 2>&1"
+
+  - name: "Attempt to add all servers from LDAP"
+    minute: 42
+    hour: 23
+    user: "observium"
+    job: /opt/observium/add_ldap.sh
+
+core_cron_jobs:
+  - name: Updates Observium software weekly
+    minute: "15"
+    hour: "23"
+    weekday: "0"
+    user: "observium"
+    job: "svn update && {{ observium_install_dir }}/discovery.php -u >> /dev/null 2>&1"
+
+  - name: "Run alerter.php for all devices every minute"
+    minute: "*/1"
+    hour: "*"
+    weekday: "*"
+    user: "observium"
+    job: "/opt/observium/alerter.php -h all >> /dev/null 2>&1"
+
+  - name: "Run housekeeping script daily for rrds, ports, orphaned entries in the database and performance data"
+    minute: "45"
+    hour: "4"
+    weekday: "*"
+    user: "observium"
+    job: "/opt/observium/housekeeping.php -yrptb >> /dev/null 2>&1"
+
+  - name: "Run housekeeping script daily for syslog, eventlog and alert log"
+    minute: "15"
+    hour: "5"
+    weekday: "*"
+    user: "observium"
+    job: "/opt/observium/housekeeping.php -ysel >> /dev/null 2>&1"
+
+apache_mod:
+  - name: mpm_event
+    identifier: mpm_event_module
+    state: absent
+
+  - name: mpm_prefork
+    identifier: mpm_prefork_module
+    state: present
+
+  - name: rewrite
+    identifier: rewrite_module
+    state: present
+
+  - name: ssl
+    identifier: ssl_module
+    state: present
+
+  - name: headers
+    identifier: headers_module
+    state: present
+
+  - name: status
+    identifier: status_module
+    state: present

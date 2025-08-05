@@ -1,0 +1,16 @@
+---
+- name: user | Create Observium Group
+  ansible.builtin.group:
+    name: observium
+    gid: "{{ observium_group_gid }}"
+    state: present
+
+- name: user | Create the Observium user
+  ansible.builtin.user:
+    name: observium
+    comment: "{{ observium_user_comment }}"
+    uid: "{{ observium_uid }}"
+    group: observium
+    groups: sudo
+    shell: /bin/bash
+    state: present

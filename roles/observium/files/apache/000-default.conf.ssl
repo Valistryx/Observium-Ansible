@@ -1,0 +1,49 @@
+  <VirtualHost *:80>
+    RedirectPermanent / < PATH TO WEBSITE HERE >
+    ServerAdmin webmaster@localhost
+    DocumentRoot /opt/observium/html
+    <FilesMatch \.php$>
+      SetHandler application/x-httpd-php
+    </FilesMatch>
+    <Directory />
+            Options FollowSymLinks
+            AllowOverride None
+    </Directory>
+    <Directory /opt/observium/html/>
+            DirectoryIndex index.php
+            Options Indexes FollowSymLinks MultiViews
+            AllowOverride All
+            Require all granted
+    </Directory>
+    ErrorLog  /error.log
+    LogLevel warn
+    CustomLog  /access.log combined
+    ServerSignature On
+  </VirtualHost>
+
+  <VirtualHost *:443>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /opt/observium/html
+    <FilesMatch \.php$>
+      SetHandler application/x-httpd-php
+    </FilesMatch>
+    <Directory />
+            Options FollowSymLinks
+            AllowOverride None
+    </Directory>
+    <Directory /opt/observium/html/>
+            DirectoryIndex index.php
+            Options Indexes FollowSymLinks MultiViews
+            AllowOverride All
+            Require all granted
+    </Directory>
+    ErrorLog  /error.log
+    LogLevel warn
+    CustomLog  /access.log combined
+    ServerSignature On
+    SSLEngine on
+    SSLProtocol -all +TLSv1.2 +TLSv1.3
+    SSLCertificateFile /etc/apache2/ssl/<PUBLIC KEY>
+    SSLCertificateKeyFile /etc/apache2/ssl/<PRIVATE KEY>
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  </VirtualHost>

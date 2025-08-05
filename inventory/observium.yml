@@ -1,0 +1,10 @@
+observium:
+  children:
+    pollers:
+      hosts:
+    web:
+      hosts:
+    syslog:
+      hosts:
+    core:
+      hosts:

@@ -1,0 +1,30 @@
+- name: cron | Configure cron job for weekly Observium updates for all non-core servers
+  ansible.builtin.cron:
+    name: "Updates Observium software weekly"
+    minute: "20"
+    hour: "23"
+    weekday: "0"
+    user: "observium"
+    job: svn update >> /dev/null 2>&1
+  when: type != "core"
+
+- name: cron | Configure poller cron jobs
+  ansible.builtin.cron:
+    name: "{{ item.name }}"
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    user: "{{ item.user }}"
+    job: "{{ item.job }}"
+  loop: "{{ poller_cron_jobs }}"
+  when: type == "poller"
+
+- name: cron | Configure core cron jobs
+  ansible.builtin.cron:
+    name: "{{ item.name }}"
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    weekday: "{{ item.weekday }}"
+    user: "{{ item.user }}"
+    job: "{{ item.job }}"
+  loop: "{{ core_cron_jobs }}"
+  when: type == "core"

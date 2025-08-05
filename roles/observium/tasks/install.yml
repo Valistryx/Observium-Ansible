@@ -1,0 +1,26 @@
+---
+- name: install | Ensure /home/observium/.subversion directory exists
+  ansible.builtin.file:
+    path: /home/observium/.subversion
+    state: directory
+    owner: observium
+    group: observium
+    mode: '0755'
+
+- name: install | Copy subversion config file to server
+  ansible.builtin.copy:
+    src: svn/servers
+    dest: /home/observium/.subversion/servers
+    mode: '0755'
+    owner: observium
+    group: observium
+
+- name: install | Download Observium from source repo
+  ansible.builtin.subversion:
+    checkout: true
+    repo: "https://svn.observium.org/svn/observium/trunk"
+    username: "{{ observium_svn_user }}"
+    password: "{{ observium_svn_pass }}"
+    dest: "{{ observium_install_dir }}"
+    in_place: true
+    force: true

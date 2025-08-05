@@ -1,0 +1,63 @@
+---
+- name: packages | Install Observium shared dependency packages
+  ansible.builtin.apt:
+    name: "{{ debian_shared_required_packages }}"
+    state: present
+    update_cache: true
+
+- name: packages | Install Observium web-specific dependency packages
+  ansible.builtin.apt:
+    name: "{{ debian_web_required_packages }}"
+    state: present
+  when: type == "web"
+
+- name: packages | Install Observium poller-specific dependency packages
+  ansible.builtin.apt:
+    name: "{{ debian_poller_required_packages }}"
+    state: present
+  when: type == "poller"
+
+- name: packages | Install Observium core-specific dependency packages
+  ansible.builtin.apt:
+    name: "{{ debian_core_required_packages }}"
+    state: present
+  when: type == "core"
+
+- name: packages | Install Observium syslog-specific dependency packages
+  ansible.builtin.apt:
+    name: "{{ debian_syslog_required_packages }}"
+    state: present
+  when: type == "syslog"
+
+- name: packages | Verify local directory exists for poller files
+  ansible.builtin.file:
+    path: "{{ local_poller_files }}"
+    state: directory
+    owner: net-ansible
+    group: net-ansible
+    mode: '0755'
+  when: type == "web" or type == "poller"
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: packages | Download check_ssl_cert probe for poller/web servers
+  ansible.builtin.get_url:
+    url: https://github.com/matteocorti/check_ssl_cert/blob/master/check_ssl_cert
+    dest: "{{ local_poller_files }}/check_ssl_cert"
+    owner: net-ansible
+    group: net-ansible
+    mode: '0755'
+  when: type == "web" or type == "poller"
+  delegate_to: localhost
+  become: false
+  run_once: true
+
+- name: packages | Copy check_ssl_cert to poller/web servers
+  ansible.builtin.copy:
+    src: "{{ local_poller_files }}/check_ssl_cert"
+    dest: "{{ observium_install_dir }}/probes/nagios/check_ssl_cert"
+    mode: '0755'
+    owner: observium
+    group: observium
+  when: type == "web" or type == "poller"

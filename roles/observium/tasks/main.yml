@@ -1,0 +1,43 @@
+---
+- name: Checking input vars
+  ansible.builtin.fail:
+    msg: "Invalid server type provided: '{{ type }}'"
+  when: type != "core" and type != "web" and type != "poller" and type != "syslog" and type != "full"
+
+- name: Checking input vars
+  ansible.builtin.fail:
+    msg: "Server type of 'web' specified but invalid SSL provided: '{{ ssl }}'"
+  when: (type == "web" or type == "full") and ssl != "true" and ssl != "false"
+
+- name: Install required packages
+  ansible.builtin.include_tasks: packages.yml
+
+- name: Create Observium user and group
+  ansible.builtin.include_tasks: user.yml
+
+- name: Create directories and assign permissions
+  ansible.builtin.include_tasks: directories.yml
+
+- name: Install Observium
+  ansible.builtin.include_tasks: install.yml
+
+- name: Copy configuration files
+  ansible.builtin.include_tasks: config.yml
+
+- name: Configure cron jobs
+  ansible.builtin.include_tasks: cron.yml
+
+- name: Miscellaneous fixes
+  ansible.builtin.include_tasks: misc.yml
+
+- name: Configure apache
+  ansible.builtin.include_tasks: web.yml
+  when: type == "web" or type == "full"
+
+- name: Configure rrdcached
+  ansible.builtin.include_tasks: rrd.yml
+  when: type == "core" or type == "full"
+
+- name: Configure syslog
+  ansible.builtin.include_tasks: syslog.yml
+  when: type == "syslog" or type == "full"

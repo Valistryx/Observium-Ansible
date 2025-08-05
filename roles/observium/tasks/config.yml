@@ -1,0 +1,52 @@
+---
+- name: config | Copy config.php
+  ansible.builtin.copy:
+    src: observium/config.php
+    dest: "{{ observium_install_dir }}/config.php"
+    mode: '0755'
+    owner: observium
+    group: observium
+
+- name: config | Copy shared config files
+  ansible.builtin.copy:
+    src: observium/shared/
+    dest: "{{ observium_config_dir }}"
+    mode: '0755'
+    owner: observium
+    group: observium
+
+- name: config | Copy core-specific config files
+  ansible.builtin.copy:
+    src: observium/core/
+    dest: "{{ observium_config_dir }}"
+    mode: '0755'
+    owner: observium
+    group: observium
+  when: type == "core"
+
+- name: config | Copy web-specific config files
+  ansible.builtin.copy:
+    src: observium/web/
+    dest: "{{ observium_config_dir }}"
+    mode: '0755'
+    owner: observium
+    group: observium
+  when: type == "web"
+
+- name: config | Copy poller-specific config files
+  ansible.builtin.copy:
+    src: observium/poller/
+    dest: "{{ observium_config_dir }}"
+    mode: '0755'
+    owner: observium
+    group: observium
+  when: type == "poller"
+
+- name: config | Copy syslog-specific config files
+  ansible.builtin.copy:
+    src: observium/syslog/
+    dest: "{{ observium_config_dir }}"
+    mode: '0755'
+    owner: observium
+    group: observium
+  when: type == "syslog"

@@ -1,0 +1,24 @@
+---
+- name: directories | Ensure /opt/observium directory exists
+  ansible.builtin.file:
+    path: /opt/observium
+    state: directory
+    owner: observium
+    group: observium
+    mode: '0755'
+
+- name: directories | Ensure /opt/observium/logs directory exists
+  ansible.builtin.file:
+    path: /opt/observium/logs
+    state: directory
+    owner: observium
+    group: observium
+    mode: '0755'
+
+- name: directories | Ensure /opt/observium/rrd directory exists for core
+  ansible.builtin.file:
+    path: /opt/observium/rrd
+    state: directory
+    owner: observium
+    group: observium
+    mode: '2775'

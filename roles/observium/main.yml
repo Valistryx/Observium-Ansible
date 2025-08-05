@@ -1,0 +1,15 @@
+---
+- name: Deploy Observium
+  vars_prompt:
+    - name: type
+      prompt: What is the install type (core, web, poller, syslog, full)?
+      private: false
+
+    - name: ssl
+      prompt: Does the server need SSL configured (true/false, only applicable for type:web or full)?
+      private: false
+
+  hosts: all
+  become: true
+  roles:
+    - observium

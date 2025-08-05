@@ -1,0 +1,94 @@
+---
+- name: web | Configure apache modules
+  community.general.apache2_module:
+    name: "{{ item.name }}"
+    identifier: "{{ item.identifier }}"
+    state: "{{ item.state }}"
+  loop: "{{ apache_mod }}"
+
+- name: web | Copy 000-default.conf to server for SSL-enabled servers
+  ansible.builtin.copy:
+    src: apache/000-default.conf.ssl
+    dest: "{{ apache_site_avail }}/000-default.conf"
+    mode: '0755'
+    owner: root
+    group: root
+  when: ssl == "true"
+
+- name: web | Copy 000-default.conf to server for servers behind a loadbalancer
+  ansible.builtin.copy:
+    src: apache/000-default.conf.lb
+    dest: "{{ apache_site_avail }}/000-default.conf"
+    mode: '0755'
+    owner: root
+    group: root
+  when: ssl == "false"
+
+- name: web | Copy adminer.conf to server
+  ansible.builtin.copy:
+    src: apache/adminer.conf
+    dest: "{{ apache_site_avail }}/adminer.conf"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: web | Copy status.conf to server
+  ansible.builtin.copy:
+    src: apache/status.conf
+    dest: "/etc/apache2/mods-available/status.conf"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: web | Create symlink from sites-enabled to Observium conf file
+  ansible.builtin.file:
+    src: "{{ apache_site_avail }}/000-default.conf"
+    dest: "{{ apache_site_en }}/000-default.conf"
+    state: link
+
+- name: web | Create symlink from mods-enabled to status conf file
+  ansible.builtin.file:
+    src: "/etc/apache2/mods-available/status.conf"
+    dest: "/etc/apache2/mods-enabled/status.conf"
+    state: link
+
+- name: web | Ensure SSL directory exists
+  ansible.builtin.file:
+    path: /etc/apache2/ssl
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  when: ssl == "true"
+
+- name: web | Copy SSL private key to server
+  ansible.builtin.copy:
+    src: apache/<PRIVATE KEY>
+    dest: "{{ apache_ssl_dir }}/<PRIVATE KEY>"
+    mode: '0755'
+    owner: root
+    group: root
+  when: ssl == "true"
+
+- name: web | Copy SSL public key to server
+  ansible.builtin.copy:
+    src: apache/<PUBLIC KEY>
+    dest: "{{ apache_ssl_dir }}/PUBLIC KEY"
+    mode: '0755'
+    owner: root
+    group: root
+  when: ssl == "true"
+
+- name: web | Copy logo to observium images directory
+  ansible.builtin.copy:
+    src: apache/logo.png
+    dest: "{{ observium_install_dir }}/html/images/logo.png"
+    mode: '0755'
+    owner: observium
+    group: observium
+
+- name: web | Restart apache2 service
+  ansible.builtin.service:
+    name: apache2
+    enabled: true
+    state: restarted

@@ -1,0 +1,22 @@
+---
+- name: rrd | Copy rrdcached
+  ansible.builtin.copy:
+    src: rrd/rrdcached
+    dest: "/etc/default/rrdcached"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: rrd | Update ownership of /var/lib/rrdcached
+  ansible.builtin.file:
+    path: /var/lib/rrdcached
+    state: directory
+    recurse: true
+    owner: observium
+    group: observium
+
+- name: rrd | Restart rrdcached service
+  ansible.builtin.service:
+    name: rrdcached
+    enabled: true
+    state: restarted

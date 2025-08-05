@@ -1,0 +1,6 @@
+---
+- name: misc | Update SNMP to use Observium MIBs
+  ansible.builtin.lineinfile:
+    path: /etc/snmp/snmp.conf
+    regexp: '^mibs :$'
+    line: "mibs : /opt/observium/mibs/rfc:/opt/observium/mibs/net-snmp"

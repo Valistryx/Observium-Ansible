@@ -1,0 +1,30 @@
+---
+- name: syslog | Ensure syslog directory exists
+  ansible.builtin.file:
+    path: "{{ syslog_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: syslog | Copy rsyslog.conf
+  ansible.builtin.copy:
+    src: syslog/rsyslog.conf
+    dest: "/etc/rsyslog.conf"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: syslog | Copy 30-observium.conf
+  ansible.builtin.copy:
+    src: syslog/30-observium.conf
+    dest: "/etc/rsyslog.d/30-observium.conf"
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: syslog | Restart rsyslog service
+  ansible.builtin.service:
+    name: rsyslog
+    enabled: true
+    state: restarted
