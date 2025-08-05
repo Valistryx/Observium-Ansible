@@ -1,10 +1,14 @@
 name: Lint and test PHP and Ansible
 on: 
+  push:
   pull_request:
+    branches: [ main ]
+
   workflow_dispatch:
+
 jobs:
   lint:
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v1
 
