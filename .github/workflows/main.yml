@@ -12,5 +12,10 @@ jobs:
     steps:
         - uses: actions/checkout@v1
 
-        - name: Run PHP Linter
+        - name: PHP Linter
           uses: michaelw90/PHP-Lint@master
+
+        - name: Ansible Lint
+          uses: ansible/ansible-lint@main
+          with:
+            args: "-c .config/ansible-lint.yml"
