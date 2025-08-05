@@ -7,4 +7,6 @@ jobs:
     runs-on: debian-latest
     steps:
         - uses: actions/checkout@v1
-        - uses: michaelw90/PHP-Lint@master
+
+        - name: Run PHP Linter
+          uses: michaelw90/PHP-Lint@master
